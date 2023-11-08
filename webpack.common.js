@@ -7,6 +7,7 @@ const args = require('yargs').argv
 
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
+const CopyFilePlugin = require("copy-webpack-plugin")
 
 const env = args.envFile
 if (env) {
@@ -16,7 +17,7 @@ if (env) {
 
 const common = ['./src/common.js']
 
-const ASSET_PATH = process.env.ASSET_PATH || '/'
+const ASSET_PATH = process.env.ASSET_PATH || ''
 
 const plugins = [
   new MiniCssExtractPlugin({ filename: '[name].[contenthash].css' }),
@@ -24,6 +25,15 @@ const plugins = [
     template: './src/index.html',
     chunks: ['main'],
     inject: 'body',
+  }),
+  new CopyFilePlugin({
+    patterns: [
+      {
+        context: path.resolve(__dirname, "./src/csv"),
+        from: path.resolve(__dirname, "./src/csv/**/*"),
+        to: path.resolve(__dirname, "dist/csv"),
+      },
+    ],
   }),
   new webpack.DefinePlugin({
     'process.env.CLIENT_ID': JSON.stringify(process.env.CLIENT_ID),
@@ -66,6 +76,12 @@ module.exports = {
               presets: ['@babel/preset-env'],
             },
           },
+        ],
+      },
+      {
+        test: /\.(csv|tsv)$/,
+        use: [
+          'csv-loader',
         ],
       },
       {
