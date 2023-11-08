@@ -1,0 +1,23 @@
+name: build
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run build:prod
+      - name: save dist
+        uses: actions/upload-artifact@v2
+        if: !failure()
+        with:
+          name: dist
+          path: ./dist
